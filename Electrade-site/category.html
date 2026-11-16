@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop by Category | Electrade Pakistan</title>
+  <meta name="description" content="Browse the full Electrade catalog by category and subcategory ??? LED TVs, air conditioners, refrigerators, washing machines, home appliances, audio and commercial equipment.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared navigation styles (header, mega-menu, sidebar, grid) -->
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body>
+
+  <!-- Header, category bar, mega-menu and mobile drawer are all
+       rendered by site-nav.js from the data in categories.js. -->
+  <header id="site-header"></header>
+
+  <main class="el-main">
+    <div class="el-container">
+      <nav id="breadcrumb" class="el-crumb el-crumb-row" aria-label="Breadcrumb"></nav>
+
+      <div class="el-layout">
+        <!-- LEFT: category sidebar (auto-expands the category you're in) -->
+        <aside id="category-sidebar"></aside>
+
+        <!-- RIGHT: title, subcategories / product listing, filters, sorting -->
+        <div id="category-main"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <!-- Supabase JS Library (MUST LOAD FIRST) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Supabase Client Configuration -->
+  <script src="supabase-client.js"></script>
+
+  <!-- Dynamic Data Files (load from Supabase) -->
+  <script src="categories.js"></script>
+  <script src="products-loader-final.js"></script>
+  <script src="cart.js"></script>
+  <script src="site-nav.js"></script>
+  <script>
+    /* No fixed category ??? this page renders whatever ?cat= and ?sub=
+       point at. It is what makes a newly added category work without
+       creating any new file. */
+  </script>
+
+  <script src="category-page.js"></script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>

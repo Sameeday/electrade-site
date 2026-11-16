@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Electrade</title>
+  <meta name="description" content="Complete your order details at Electrade.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBg: '#F7F6F3',
+            brandSurface: '#EFECE6',
+            brandText: '#3A3A3A',
+            brandMuted: '#6B6B6B',
+            brandDarkBtn: '#2D2D2D',
+            brandBorder: '#E4E2DC',
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #F7F6F3;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #D4D0C7;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3A3A3A;
+    }
+
+    header.shrunk {
+      padding-top: 0.65rem;
+      padding-bottom: 0.65rem;
+      background-color: rgba(247, 246, 243, 0.95);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(58, 58, 58, 0.04);
+      border-bottom: 1px solid #E4E2DC;
+    }
+
+    .nav-dropdown {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .group:hover .nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #2D2D2D;
+    }
+  </style>
+  <!-- Shared navigation styles (header, mega-menu, sidebar, breadcrumbs) -->
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body class="bg-brandBg text-brandText font-sans selection:bg-brandDarkBtn selection:text-white overflow-x-hidden">
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="bg-brandDarkBtn text-[#F7F6F3] text-xs py-2 px-4 text-center font-medium tracking-wide">
+    Shipping All Across Pakistan | Cash On Delivery Available
+  </div>
+
+  <!-- STICKY HEADER -->
+  <!-- Header, category bar, mega-menu and mobile drawer are rendered by
+       site-nav.js from the hierarchy in categories.js. -->
+  <header id="site-header"></header>
+
+  <!-- The mobile drawer is created by site-nav.js -->
+
+  <!-- PAGE INTRO -->
+  <section class="py-14 border-b border-brandBorder bg-brandSurface/40">
+    <div class="container mx-auto px-4 text-center max-w-2xl">
+      <span class="text-xs font-bold text-brandMuted uppercase tracking-widest block mb-2">Step 2 of 2</span>
+      <h1 class="text-3xl lg:text-4xl font-extrabold text-brandText mb-3">Checkout</h1>
+      <p class="text-brandMuted text-sm sm:text-base">Enter your shipping details below to complete your order.</p>
+    </div>
+  </section>
+
+  <!-- EMPTY STATE (no cart items and no buy-now item) -->
+  <section id="empty-checkout" class="hidden py-24">
+    <div class="container mx-auto px-4 text-center max-w-md">
+      <i data-lucide="shopping-bag" class="w-14 h-14 mx-auto text-brandMuted mb-4"></i>
+      <h2 class="text-xl font-extrabold text-brandText mb-2">Nothing to check out yet</h2>
+      <p class="text-brandMuted text-sm mb-6">Your cart is empty. Add something first, then come back here.</p>
+      <a href="index.html"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-brandDarkBtn text-white font-semibold text-sm rounded hover:bg-black transition-all">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Continue Shopping</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CHECKOUT CONTENT -->
+  <section id="checkout-content" class="hidden py-14">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <!-- Shipping form -->
+        <div class="lg:col-span-2 order-2 lg:order-1">
+          <div class="bg-white border border-brandBorder rounded-xl p-6 lg:p-8">
+            <h2 class="font-extrabold text-lg text-brandText mb-1">Shipping & Contact Details</h2>
+            <p class="text-xs text-brandMuted mb-6">We'll use these details to deliver your order and keep you
+              updated.</p>
+
+            <form id="checkout-form" class="space-y-5">
+              <div>
+                <label for="full-name" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">Full
+                  Name <span class="text-red-500">*</span></label>
+                <input type="text" id="full-name" name="fullName" required placeholder="e.g. Ahmed Khan"
+                  class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandBg/40 transition-colors">
+              </div>
+
+              <div>
+                <label for="email" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">Email
+                  Address <span class="text-red-500">*</span></label>
+                <input type="email" id="email" name="email" required placeholder="e.g. ahmed@example.com"
+                  class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandBg/40 transition-colors">
+              </div>
+
+              <div>
+                <label for="phone" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">Phone
+                  Number <span class="text-red-500">*</span></label>
+                <input type="tel" id="phone" name="phone" required placeholder="03XX-XXXXXXX"
+                  class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandBg/40 transition-colors">
+              </div>
+
+              <div>
+                <label for="address" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">Street
+                  Address <span class="text-red-500">*</span></label>
+                <textarea id="address" name="address" required rows="3" placeholder="House #, Street, Area"
+                  class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandBg/40 transition-colors resize-none"></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="city" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">City
+                    <span class="text-red-500">*</span></label>
+                  <!-- Searchable via the native browser datalist below ??? start
+                       typing and matching Pakistani cities will suggest. -->
+                  <input type="text" id="city" name="city" required list="pk-cities-list" autocomplete="off"
+                    placeholder="Start typing a city..."
+                    class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandBg/40 transition-colors">
+                  <datalist id="pk-cities-list">
+                    <option value="Karachi"></option>
+                    <option value="Lahore"></option>
+                    <option value="Faisalabad"></option>
+                    <option value="Rawalpindi"></option>
+                    <option value="Gujranwala"></option>
+                    <option value="Peshawar"></option>
+                    <option value="Multan"></option>
+                    <option value="Hyderabad"></option>
+                    <option value="Islamabad"></option>
+                    <option value="Quetta"></option>
+                    <option value="Bahawalpur"></option>
+                    <option value="Sargodha"></option>
+                    <option value="Sialkot"></option>
+                    <option value="Sukkur"></option>
+                    <option value="Larkana"></option>
+                    <option value="Sheikhupura"></option>
+                    <option value="Rahim Yar Khan"></option>
+                    <option value="Jhang"></option>
+                    <option value="Dera Ghazi Khan"></option>
+                    <option value="Gujrat"></option>
+                    <option value="Sahiwal"></option>
+                    <option value="Wah Cantonment"></option>
+                    <option value="Mardan"></option>
+                    <option value="Kasur"></option>
+                    <option value="Okara"></option>
+                    <option value="Mingora"></option>
+                    <option value="Nawabshah"></option>
+                    <option value="Chiniot"></option>
+                    <option value="Kotri"></option>
+                    <option value="Kamoke"></option>
+                    <option value="Hafizabad"></option>
+                    <option value="Muzaffargarh"></option>
+                    <option value="Khanpur"></option>
+                    <option value="Gojra"></option>
+                    <option value="Bahawalnagar"></option>
+                    <option value="Muridke"></option>
+                    <option value="Jacobabad"></option>
+                    <option value="Shikarpur"></option>
+                    <option value="Khanewal"></option>
+                    <option value="Hasilpur"></option>
+                    <option value="Chishtian"></option>
+                    <option value="Daska"></option>
+                    <option value="Mandi Bahauddin"></option>
+                    <option value="Ahmadpur East"></option>
+                    <option value="Kamalia"></option>
+                    <option value="Khairpur"></option>
+                    <option value="Khuzdar"></option>
+                    <option value="Vehari"></option>
+                    <option value="Jaranwala"></option>
+                    <option value="Attock"></option>
+                    <option value="Abbottabad"></option>
+                    <option value="Mansehra"></option>
+                    <option value="Swabi"></option>
+                    <option value="Kohat"></option>
+                    <option value="Dera Ismail Khan"></option>
+                    <option value="Bannu"></option>
+                    <option value="Charsadda"></option>
+                    <option value="Nowshera"></option>
+                    <option value="Turbat"></option>
+                    <option value="Gwadar"></option>
+                    <option value="Chaman"></option>
+                    <option value="Sibi"></option>
+                    <option value="Zhob"></option>
+                    <option value="Muzaffarabad"></option>
+                    <option value="Mirpur (AJK)"></option>
+                    <option value="Gilgit"></option>
+                    <option value="Skardu"></option>
+                    <option value="Nankana Sahib"></option>
+                    <option value="Toba Tek Singh"></option>
+                    <option value="Pakpattan"></option>
+                    <option value="Layyah"></option>
+                    <option value="Mianwali"></option>
+                    <option value="Chakwal"></option>
+                    <option value="Jhelum"></option>
+                    <option value="Taxila"></option>
+                    <option value="Haripur"></option>
+                    <option value="Timergara"></option>
+                    <option value="Kohlu"></option>
+                    <option value="Larkana"></option>
+                    <option value="Ghotki"></option>
+                    <option value="Tando Adam"></option>
+                    <option value="Tando Allahyar"></option>
+                    <option value="Badin"></option>
+                    <option value="Thatta"></option>
+                    <option value="Umerkot"></option>
+                  </datalist>
+                </div>
+                <div>
+                  <label for="country" class="block text-xs font-bold text-brandText uppercase tracking-wide mb-1.5">Country
+                    <span class="text-red-500">*</span></label>
+                  <!-- Fixed to Pakistan since delivery is Pakistan-only ???
+                       readonly (not disabled) so its value still submits
+                       with the form later once a backend is wired up. -->
+                  <input type="text" id="country" name="country" value="Pakistan" readonly
+                    class="w-full px-4 py-3 border border-brandBorder rounded-lg text-sm bg-brandSurface text-brandMuted font-medium cursor-not-allowed">
+                </div>
+              </div>
+
+              <!-- PAYMENT METHOD
+                   Two options: Cash on Delivery (adds a fixed COD handling
+                   charge on top of shipping) and Bank Transfer (shipping
+                   charge only, no COD charge ??? shows bank details to
+                   transfer to). Selecting either recalculates the order
+                   total in the summary panel via updateOrderTotals() in
+                   the script below. -->
+              <div class="pt-2 border-t border-brandBorder">
+                <label class="block text-xs font-bold text-brandText uppercase tracking-wide mb-3">Payment Method <span
+                    class="text-red-500">*</span></label>
+
+                <div class="space-y-3">
+                  <label
+                    class="flex items-start gap-3 p-4 border border-brandBorder rounded-lg cursor-pointer hover:border-brandText transition-colors has-[:checked]:border-brandText has-[:checked]:bg-brandSurface/50">
+                    <input type="radio" name="paymentMethod" id="payment-cod" value="cod" checked
+                      class="mt-0.5 accent-brandDarkBtn">
+                    <div>
+                      <span class="block text-sm font-bold text-brandText">Cash on Delivery</span>
+                      <span class="block text-xs text-brandMuted mt-0.5">Pay in cash when your order arrives. A Rs.
+                        3,000 COD handling charge plus Rs. 2,000 shipping applies.</span>
+                    </div>
+                  </label>
+
+                  <label
+                    class="flex items-start gap-3 p-4 border border-brandBorder rounded-lg cursor-pointer hover:border-brandText transition-colors has-[:checked]:border-brandText has-[:checked]:bg-brandSurface/50">
+                    <input type="radio" name="paymentMethod" id="payment-bank" value="bank"
+                      class="mt-0.5 accent-brandDarkBtn">
+                    <div>
+                      <span class="block text-sm font-bold text-brandText">Bank Transfer</span>
+                      <span class="block text-xs text-brandMuted mt-0.5">Transfer the order total to our bank account.
+                        No COD charge ??? only Rs. 2,000 shipping applies.</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- Bank details ??? shown only when Bank Transfer is selected.
+                     TODO: these are placeholder details ??? replace with the
+                     real business bank account info before launch. -->
+                <div id="bank-details" class="hidden mt-4 p-4 bg-brandSurface/60 border border-brandBorder rounded-lg text-xs text-brandText space-y-1.5">
+                  <p class="font-bold uppercase tracking-wide text-brandMuted mb-2">Bank Account Details</p>
+                  <p><span class="text-brandMuted">Bank Name:</span> <span class="font-semibold">Meezan Bank Limited</span></p>
+                  <p><span class="text-brandMuted">Account Title:</span> <span class="font-semibold">Electrade Electronics (Pvt.) Ltd.</span></p>
+                  <p><span class="text-brandMuted">Account Number:</span> <span class="font-semibold">01234567890123</span></p>
+                  <p><span class="text-brandMuted">IBAN:</span> <span class="font-semibold">PK36 MEZN 0001 2301 2345 6789</span></p>
+                  <p class="text-brandMuted italic mt-2">Please send your payment screenshot on WhatsApp after placing your order.</p>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit"
+                  class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brandDarkBtn text-white font-semibold text-sm rounded hover:bg-black transition-all">
+                  <span>Place Order</span>
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Order summary -->
+        <div class="lg:col-span-1 order-1 lg:order-2">
+          <div class="bg-white border border-brandBorder rounded-xl p-6 sticky top-28">
+            <h2 class="font-extrabold text-lg text-brandText mb-5">Order Summary</h2>
+            <div id="summary-items" class="space-y-4 mb-5 pb-5 border-b border-brandBorder"></div>
+            <div class="flex items-center justify-between text-sm text-brandMuted mb-2">
+              <span>Subtotal</span>
+              <span id="summary-subtotal" class="font-semibold text-brandText"></span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-brandMuted mb-2">
+              <span>Shipping</span>
+              <span id="summary-shipping" class="font-semibold text-brandText">Rs. 2,000</span>
+            </div>
+            <div id="summary-cod-row" class="flex items-center justify-between text-sm text-brandMuted mb-4 pb-4 border-b border-brandBorder">
+              <span>COD Handling Charge</span>
+              <span id="summary-cod" class="font-semibold text-brandText">Rs. 3,000</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-brandText">Total</span>
+              <span id="summary-total" class="font-extrabold text-xl text-brandText"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shared footer, rendered by site-nav.js -->
+  <footer id="site-footer"></footer>
+
+  <!-- FLOATING WHATSAPP BUTTON -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <a href="https://wa.me/923239883836?text=Hello%20Electrade!" target="_blank" rel="noreferrer"
+      class="group relative bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center"
+      aria-label="Chat on WhatsApp">
+      <i data-lucide="message-circle" class="w-7 h-7 fill-white text-[#25D366]"></i>
+      <span class="absolute -top-1 -right-1 flex h-4 w-4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-4 w-4 bg-[#25D366] border-2 border-white"></span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Shared product data + cart logic (localStorage-based, no backend) -->
+  <script src="categories.js"></script>
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <!-- Security utilities -->
+  <script src="security.js"></script>
+
+  <!-- Supabase SDK + client (needed by supabase-orders-functions.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+
+  <!-- Orders functionality -->
+  <script src="supabase-orders-functions.js"></script>
+  <script src="checkout-order-save.js"></script>
+  <script src="site-nav.js"></script>
+
+  <script>
+    // Builds the header, category bar, mega-menu, mobile drawer
+    // and footer from categories.js.
+    ElectradeNav.init({});
+  </script>
+
+  <script>
+    lucide.createIcons();
+
+    // Header, mega-menu, mobile drawer and search are handled by
+    // site-nav.js (see ElectradeNav.init below).
+
+    // ---- ORDER SOURCE ----
+    // A "Buy Now" click on product.html sets electrade_buynow_item and sends the
+    // shopper here with ?buynow=1 ??? that single item becomes the order,
+    // bypassing whatever's in the cart. Otherwise we use the real cart.
+    const params = new URLSearchParams(window.location.search);
+    const isBuyNow = params.get('buynow') === '1';
+
+    let orderItems = [];
+    if (isBuyNow) {
+      const buyNowItem = getBuyNowItem();
+      if (buyNowItem) {
+        // Buy Now item now contains complete product data, no need to fetch
+        orderItems = [buyNowItem];
+      }
+    } else {
+      orderItems = getCartDetailed();
+    }
+
+    // Fixed charges ??? always applied the same way regardless of order size.
+    const SHIPPING_CHARGE = 2000;
+    const COD_CHARGE = 3000;
+    let orderSubtotal = 0;
+
+    if (orderItems.length === 0) {
+      document.getElementById('empty-checkout').classList.remove('hidden');
+    } else {
+      document.getElementById('checkout-content').classList.remove('hidden');
+
+      const summaryItems = document.getElementById('summary-items');
+      orderItems.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex gap-3';
+        row.innerHTML = `
+          <div class="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-brandBg border border-brandBorder">
+            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-brandText leading-snug truncate">${item.name}</p>
+            <p class="text-[11px] text-brandMuted mt-0.5">Qty: ${item.qty} ?? Rs. ${item.price.toLocaleString()}</p>
+          </div>
+          <span class="text-xs font-extrabold text-brandText flex-shrink-0">Rs. ${item.lineTotal.toLocaleString()}</span>
+        `;
+        summaryItems.appendChild(row);
+      });
+
+      orderSubtotal = orderItems.reduce((sum, item) => sum + item.lineTotal, 0);
+      document.getElementById('summary-subtotal').textContent = 'Rs. ' + orderSubtotal.toLocaleString();
+      updateOrderTotals();
+    }
+
+    // ---- PAYMENT METHOD -> TOTALS ----
+    // Cash on Delivery: subtotal + shipping (2,000) + COD charge (3,000)
+    // Bank Transfer: subtotal + shipping (2,000) only, no COD charge ???
+    // and the bank details panel is revealed instead.
+    function updateOrderTotals() {
+      const isCod = document.getElementById('payment-cod').checked;
+      const codRow = document.getElementById('summary-cod-row');
+      const bankDetails = document.getElementById('bank-details');
+
+      let total = orderSubtotal + SHIPPING_CHARGE;
+
+      if (isCod) {
+        total += COD_CHARGE;
+        codRow.classList.remove('hidden');
+        bankDetails.classList.add('hidden');
+      } else {
+        codRow.classList.add('hidden');
+        bankDetails.classList.remove('hidden');
+      }
+
+      document.getElementById('summary-shipping').textContent = 'Rs. ' + SHIPPING_CHARGE.toLocaleString();
+      document.getElementById('summary-total').textContent = 'Rs. ' + total.toLocaleString();
+    }
+
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+      radio.addEventListener('change', updateOrderTotals);
+    });
+
+    // ---- FORM SUBMIT ----
+    // The real order-saving handler is in checkout-order-save.js
+    // (loaded above). It validates, saves to Supabase, shows order number,
+    // and clears the cart. No dummy handler needed here.
+  </script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Electronics | Electrade Pakistan</title>
+  <meta name="description"
+    content="The full Electrade catalog ??? LED TVs, air conditioners, refrigerators, washing machines, home and kitchen appliances, audio, power backup and commercial equipment.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body>
+  <header id="site-header"></header>
+
+  <main class="el-main">
+    <div class="el-container">
+      <nav id="breadcrumb" class="el-crumb el-crumb-row" aria-label="Breadcrumb"></nav>
+
+      <div class="el-layout">
+        <aside id="category-sidebar"></aside>
+
+        <div>
+          <div class="el-page-head">
+            <h1 class="el-page-title">All Electronics</h1>
+            <p class="el-page-desc">Every category we stock, in one place. Pick a category to see its
+              subcategories, or jump straight to a subcategory from the list below each card.</p>
+          </div>
+
+          <!-- Category cards, built from categories.js -->
+          <div id="all-category-cards"></div>
+
+          <!-- Full A???Z style index of every subcategory on the site -->
+          <div class="el-group-heading" style="margin-top:2.5rem">
+            <h3>Full catalog index</h3><span class="el-rule"></span>
+          </div>
+          <div id="full-index"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="categories.js"></script>
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <script src="site-nav.js"></script>
+
+  <script>
+    (function () {
+      var E = ElectradeNav;
+
+      // Header, drawer, footer. No active category ??? this IS the root.
+      E.init({});
+
+      E.renderSidebar(document.getElementById("category-sidebar"), null, null);
+
+      // Breadcrumb: Home / Electronics (current)
+      var crumb = document.getElementById("breadcrumb");
+      crumb.innerHTML =
+        '<a href="index.html">Home</a>' +
+        '<span class="el-crumb-sep">/</span>' +
+        '<span class="el-crumb-current" aria-current="page">Electronics</span>';
+
+      // The same category cards used on the homepage.
+      E.renderHomeCards(document.getElementById("all-category-cards"));
+
+      // Every subcategory on the site, grouped under its category, so
+      // there is always one page that links to absolutely everything.
+      document.getElementById("full-index").innerHTML = getCategories()
+        .map(function (cat) {
+          var chips = cat.subcategories
+            .map(function (sub) {
+              var target = resolveSub(cat.slug, sub);
+              return '<a class="el-chip" href="' + subcategoryUrl(cat.slug, sub) + '">' +
+                E.esc(sub.name) + E.countLabel(target.cat, target.sub) + '</a>';
+            })
+            .join("");
+
+          return '<div style="margin-bottom:1.5rem">' +
+            '<div class="el-group-heading" style="margin-top:0">' +
+              '<h3><a href="' + categoryUrl(cat.slug) + '" style="color:inherit;text-decoration:none">' +
+                E.esc(cat.name) + ' ???</a></h3><span class="el-rule"></span>' +
+            '</div>' +
+            '<div class="el-chiprow" style="justify-content:flex-start">' + chips + '</div>' +
+          '</div>';
+        })
+        .join("");
+    })();
+  </script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>

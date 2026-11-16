@@ -1,0 +1,81 @@
+# Electrade Website - Files to NOT upload to GitHub/Vercel
+
+# ============================================
+# SECRETS - NEVER UPLOAD THESE
+# ============================================
+.env
+*.env
+catalog-pipeline/.env
+catalog-pipeline/**/.env
+
+# ============================================
+# FOLDERS TO EXCLUDE
+# ============================================
+# Catalog pipeline (contains secrets and scripts not needed for website)
+catalog-pipeline/
+
+# Node modules (can be reinstalled)
+node_modules/
+
+# ============================================
+# TEST & DEBUG FILES
+# ============================================
+test-*.html
+debug-*.html
+scraper-*.html
+analyze-*.html
+setup-*.html
+export-*.html
+quick-test.html
+specifications-scraper.html
+
+# Admin panel (you may want this later, but let's exclude for now)
+admin.html
+admin-panel-enhanced.js
+admin-panel-OLD.js
+
+# ============================================
+# DEVELOPMENT FILES
+# ============================================
+*.bat
+*.sh
+*.py
+*.zip
+
+# CSV and staging files
+*.csv
+staging/
+ready.csv
+
+# ============================================
+# DOCUMENTATION (not needed on live site)
+# ============================================
+*.md
+!README.md
+
+# SQL files (database setup scripts)
+*.sql
+
+# ============================================
+# TEMPORARY FILES
+# ============================================
+*.log
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================
+# IDE / EDITOR FILES
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================
+# BUILD OUTPUT (if you add build tools later)
+# ============================================
+dist/
+build/
+.cache/

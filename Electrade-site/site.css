@@ -1,0 +1,1743 @@
+/**
+ * site.css
+ * ==================================================================
+ * Styling for the shared navigation system (header category bar,
+ * mega-menu, mobile drawer, category sidebar, breadcrumbs, category
+ * cards, product grid, filters).
+ *
+ * These are written as plain CSS classes rather than Tailwind
+ * utilities because this markup is injected by JavaScript — plain CSS
+ * renders instantly and never depends on the Tailwind CDN re-scanning
+ * the DOM. The tokens below are the site's existing brand values, so
+ * everything matches the pages that were already built.
+ * ================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --brand-bg: #F7F6F3;
+  --brand-surface: #EFECE6;
+  --brand-text: #3A3A3A;
+  --brand-muted: #6B6B6B;
+  --brand-dark: #2D2D2D;
+  --brand-border: #E4E2DC;
+  --brand-white: #FFFFFF;
+
+  --nav-radius: 10px;
+  --nav-shadow: 0 12px 32px rgba(58, 58, 58, 0.12);
+  --nav-shadow-sm: 0 2px 8px rgba(58, 58, 58, 0.06);
+  --nav-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Nothing in the navigation may push the page sideways. */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+.el-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Visible keyboard focus everywhere in the nav system. */
+.el-catbar a:focus-visible,
+.el-mega a:focus-visible,
+.el-sidebar a:focus-visible,
+.el-sidebar button:focus-visible,
+.el-drawer a:focus-visible,
+.el-drawer button:focus-visible,
+.el-crumb a:focus-visible,
+.el-chip:focus-visible,
+.el-subcard:focus-visible,
+.el-catcard:focus-visible {
+  outline: 2px solid var(--brand-dark);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ==================================================================
+   1. HEADER CATEGORY BAR
+   The second header row: "All Categories" + every main category.
+   ================================================================== */
+
+.el-catbar-wrap {
+  background: var(--brand-white);
+  border-top: 1px solid var(--brand-border);
+  border-bottom: 1px solid var(--brand-border);
+  position: relative;
+  z-index: 45;
+}
+
+/* Below 1024px the bar is a scrollable strip of plain links — the
+   hamburger drawer is the real navigation there.
+
+   IMPORTANT: overflow-x on a flex container also clips its absolutely
+   positioned children vertically (CSS computes the other axis to auto),
+   which would slice the mega-menu panels off just under the bar. So the
+   scroll container only exists at the widths where no panel opens; from
+   1024px up the bar wraps instead of scrolling and nothing is clipped. */
+.el-catbar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.el-catbar::-webkit-scrollbar { display: none; }
+
+@media (max-width: 1023px) {
+  /* No hover on touch — the bar navigates, the drawer expands. */
+  .el-catbar .el-mega { display: none; }
+  .el-catbar-link .el-caret { display: none; }
+  .el-catbar-link { padding-left: 0.7rem; padding-right: 0.7rem; }
+}
+
+@media (min-width: 1024px) {
+  .el-catbar { overflow: visible; flex-wrap: wrap; }
+}
+
+.el-catbar-link .el-allicon { width: 15px; height: 15px; flex: 0 0 auto; }
+
+.el-catbar-item { position: relative; flex: 0 0 auto; }
+
+.el-catbar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.85rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  white-space: nowrap;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.el-catbar-link:hover { background: var(--brand-bg); }
+
+/* Hovered / open state — makes it obvious which menu is showing. */
+.el-catbar-item.is-open > .el-catbar-link {
+  border-bottom-color: var(--brand-dark);
+  background: var(--brand-bg);
+}
+
+/* Current page state — persists while browsing that category. */
+.el-catbar-link.is-active {
+  color: var(--brand-dark);
+  font-weight: 800;
+  border-bottom-color: var(--brand-dark);
+}
+
+.el-catbar-link .el-caret {
+  width: 13px; height: 13px;
+  transition: transform 0.2s var(--nav-ease);
+  flex: 0 0 auto;
+}
+.el-catbar-item.is-open .el-caret { transform: rotate(180deg); }
+
+/* The "All Categories" trigger is the visual anchor of the bar. */
+.el-catbar-all .el-catbar-link {
+  background: var(--brand-dark);
+  color: var(--brand-white);
+  font-weight: 700;
+  border-bottom-color: var(--brand-dark);
+}
+.el-catbar-all .el-catbar-link:hover { background: #000; }
+
+/* ==================================================================
+   2. MEGA MENU / DROPDOWN PANELS
+   ================================================================== */
+
+.el-mega {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  box-shadow: var(--nav-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.18s var(--nav-ease), transform 0.18s var(--nav-ease), visibility 0.18s;
+  z-index: 60;
+  overflow: hidden;
+}
+
+.el-catbar-item.is-open > .el-mega {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Invisible bridge so the menu survives the gap between the
+   category label and the panel below it. */
+.el-mega::before {
+  content: "";
+  position: absolute;
+  top: -10px; left: 0; right: 0;
+  height: 10px;
+}
+
+/* Keep panels inside the viewport near the right edge. */
+.el-mega.align-right { left: auto; right: 0; }
+
+/* ---- Two-panel "All Categories" mega menu ---- */
+
+.el-mega-all { width: min(920px, calc(100vw - 2rem)); display: flex; }
+
+.el-mega-rail {
+  width: 232px;
+  flex: 0 0 232px;
+  background: var(--brand-bg);
+  border-right: 1px solid var(--brand-border);
+  padding: 0.5rem 0;
+  max-height: min(520px, calc(100vh - 190px));
+  overflow-y: auto;
+}
+
+.el-mega-rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+
+.el-mega-rail-item:hover,
+.el-mega-rail-item.is-active {
+  background: var(--brand-white);
+  border-left-color: var(--brand-dark);
+}
+
+.el-mega-rail-item .el-rail-arrow { width: 14px; height: 14px; opacity: 0.45; }
+.el-mega-rail-item.is-active .el-rail-arrow { opacity: 1; }
+
+.el-mega-panel {
+  flex: 1 1 auto;
+  padding: 1.25rem 1.5rem 1.5rem;
+  max-height: min(520px, calc(100vh - 190px));
+  overflow-y: auto;
+}
+
+.el-mega-pane { display: none; }
+.el-mega-pane.is-active { display: block; }
+
+.el-mega-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.el-mega-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--brand-text);
+}
+
+.el-mega-viewall {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.el-mega-viewall:hover { color: var(--brand-text); }
+
+/* Multi-column subcategory layout — keeps tall categories short. */
+.el-mega-cols {
+  column-count: 3;
+  column-gap: 1.75rem;
+}
+.el-mega-cols.cols-2 { column-count: 2; }
+
+.el-mega-group { break-inside: avoid; margin-bottom: 1.1rem; }
+
+.el-mega-group-title {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-muted);
+  margin-bottom: 0.45rem;
+}
+
+.el-mega-link {
+  display: block;
+  padding: 0.28rem 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--brand-text);
+  text-decoration: none;
+  transition: color 0.15s ease, padding-left 0.15s ease;
+}
+.el-mega-link:hover {
+  color: var(--brand-dark);
+  font-weight: 600;
+  padding-left: 4px;
+}
+.el-mega-link.is-active { font-weight: 700; text-decoration: underline; }
+
+.el-mega-link .el-count {
+  font-size: 0.6875rem;
+  color: var(--brand-muted);
+  font-weight: 500;
+}
+
+/* Alias links (a heading that lives in another category) get a
+   quiet marker so the destination isn't a surprise. */
+.el-mega-link .el-alias {
+  font-size: 0.625rem;
+  color: var(--brand-muted);
+  font-weight: 500;
+}
+
+/* ---- Single-category dropdown ---- */
+.el-mega-single {
+  width: min(660px, calc(100vw - 2rem));
+  padding: 1.25rem 1.5rem 1.4rem;
+}
+.el-mega-single .el-mega-cols { column-count: 2; }
+.el-mega-single.wide { width: min(860px, calc(100vw - 2rem)); }
+.el-mega-single.wide .el-mega-cols { column-count: 3; }
+
+/* ==================================================================
+   3. SEARCH RESULTS PANEL
+   ================================================================== */
+
+.el-search-results {
+  border-top: 1px solid var(--brand-border);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.el-search-group-title {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-muted);
+  margin: 0.5rem 0 0.35rem;
+}
+
+.el-search-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--brand-text);
+}
+.el-search-item:hover { background: var(--brand-surface); }
+
+.el-search-item img {
+  width: 38px; height: 38px;
+  object-fit: cover;
+  border-radius: 5px;
+  background: var(--brand-surface);
+  flex: 0 0 auto;
+}
+
+.el-search-item-name { font-size: 0.8125rem; font-weight: 600; line-height: 1.3; }
+.el-search-item-path { font-size: 0.6875rem; color: var(--brand-muted); margin-top: 1px; }
+.el-search-empty { font-size: 0.8125rem; color: var(--brand-muted); padding: 0.75rem 0.5rem; }
+
+/* ==================================================================
+   4. MOBILE DRAWER ACCORDION
+   ================================================================== */
+
+.el-drawer-acc { border-top: 1px solid var(--brand-border); }
+
+.el-acc-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.el-acc-label {
+  flex: 1 1 auto;
+  padding: 0.85rem 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+.el-acc-label.is-active { font-weight: 800; }
+
+.el-acc-toggle {
+  flex: 0 0 auto;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--brand-border);
+  color: var(--brand-muted);
+  cursor: pointer;
+}
+.el-acc-toggle svg { width: 18px; height: 18px; transition: transform 0.22s var(--nav-ease); }
+.el-acc-row.is-open .el-acc-toggle svg { transform: rotate(180deg); }
+
+.el-acc-panel {
+  display: none;
+  padding: 0.35rem 0 0.75rem 0.75rem;
+  border-bottom: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+  margin: 0 -1.5rem;
+  padding-left: 2.25rem;
+  padding-right: 1.5rem;
+}
+.el-acc-row.is-open + .el-acc-panel { display: block; }
+
+.el-acc-sub {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.8125rem;
+  color: var(--brand-text);
+  text-decoration: none;
+}
+.el-acc-sub.is-active { font-weight: 700; }
+.el-acc-sub .el-count { font-size: 0.6875rem; color: var(--brand-muted); }
+
+.el-acc-group-title {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-muted);
+  margin: 0.65rem 0 0.15rem;
+}
+
+/* ==================================================================
+   5. BREADCRUMBS
+   ================================================================== */
+
+.el-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--brand-muted);
+}
+.el-crumb a { color: var(--brand-muted); text-decoration: none; }
+.el-crumb a:hover { color: var(--brand-text); text-decoration: underline; }
+.el-crumb .el-crumb-sep { opacity: 0.5; }
+.el-crumb .el-crumb-current { color: var(--brand-text); font-weight: 600; }
+
+/* ==================================================================
+   6. CATEGORY PAGE LAYOUT (sidebar + content)
+   ================================================================== */
+
+.el-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .el-layout { grid-template-columns: 268px minmax(0, 1fr); gap: 2rem; }
+}
+
+/* ---- Sidebar ---- */
+
+.el-sidebar {
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .el-sidebar { position: sticky; top: 108px; max-height: calc(100vh - 130px); overflow-y: auto; }
+}
+
+.el-sidebar-head {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--brand-border);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--brand-muted);
+}
+
+.el-sidebar-all {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--brand-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--brand-border);
+}
+.el-sidebar-all:hover { background: var(--brand-bg); }
+.el-sidebar-all svg { width: 15px; height: 15px; }
+
+.el-side-cat { border-bottom: 1px solid var(--brand-border); }
+.el-side-cat:last-child { border-bottom: none; }
+
+.el-side-row { display: flex; align-items: stretch; }
+
+.el-side-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.5rem 0.7rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s ease;
+}
+.el-side-link:hover { background: var(--brand-bg); }
+.el-side-link span { overflow-wrap: anywhere; line-height: 1.3; }   /* long names (e.g. Projectors, TV Accessories...) wrap instead of being cut off */
+
+/* Active main category — left bar + weight, no colour needed. */
+.el-side-cat.is-current > .el-side-row > .el-side-link {
+  border-left-color: var(--brand-dark);
+  font-weight: 800;
+  background: var(--brand-bg);
+}
+
+.el-side-toggle {
+  flex: 0 0 auto;
+  width: 40px;
+  background: none;
+  border: none;
+  border-left: 1px solid transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.el-side-toggle:hover { color: var(--brand-text); }
+.el-side-toggle svg { width: 16px; height: 16px; transition: transform 0.22s var(--nav-ease); }
+.el-side-cat.is-open .el-side-toggle svg { transform: rotate(180deg); }
+
+.el-side-subs { display: none; padding: 0.15rem 0 0.6rem; background: var(--brand-bg); }
+.el-side-cat.is-open .el-side-subs { display: block; }
+
+.el-side-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem 0.4rem 1.6rem;
+  font-size: 0.78125rem;
+  color: var(--brand-text);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  line-height: 1.35;
+}
+.el-side-sub:hover { background: var(--brand-surface); }
+
+/* Active subcategory */
+.el-side-sub.is-current {
+  font-weight: 800;
+  border-left-color: var(--brand-dark);
+  background: var(--brand-surface);
+}
+
+.el-side-sub .el-count { font-size: 0.6875rem; color: var(--brand-muted); flex: 0 0 auto; }
+
+.el-side-group {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-muted);
+  padding: 0.55rem 1rem 0.2rem 1.6rem;
+}
+
+/* Mobile: sidebar collapses into a tappable panel. */
+.el-sidebar-mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--brand-text);
+  cursor: pointer;
+}
+.el-sidebar-mobile-toggle svg { width: 17px; height: 17px; }
+
+@media (min-width: 1024px) {
+  .el-sidebar-mobile-toggle { display: none; }
+  .el-sidebar-shell { display: block !important; }
+}
+
+@media (max-width: 1023px) {
+  .el-sidebar-shell { display: none; margin-top: 0.75rem; }
+  .el-sidebar-shell.is-open { display: block; }
+}
+
+/* ==================================================================
+   7. CATEGORY PAGE CONTENT
+   ================================================================== */
+
+.el-page-head { margin-bottom: 1.5rem; }
+
+.el-page-title {
+  font-size: clamp(1.6rem, 3.4vw, 2.25rem);
+  font-weight: 800;
+  color: var(--brand-text);
+  letter-spacing: -0.02em;
+  margin: 0.6rem 0 0.5rem;
+  line-height: 1.15;
+}
+
+.el-page-desc {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--brand-muted);
+  max-width: 62ch;
+}
+
+/* ---- Subcategory chips / cards on a category landing page ---- */
+
+.el-subgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+@media (min-width: 640px) { .el-subgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .el-subgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.el-subcard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 84px;
+  padding: 0.85rem 0.9rem;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  text-decoration: none;
+  color: var(--brand-text);
+  transition: transform 0.2s var(--nav-ease), box-shadow 0.2s var(--nav-ease), border-color 0.2s ease;
+}
+.el-subcard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--nav-shadow-sm);
+  border-color: #CFCBC2;
+}
+
+.el-subcard-name { font-size: 0.8125rem; font-weight: 700; line-height: 1.3; }
+.el-subcard-meta {
+  font-size: 0.6875rem;
+  color: var(--brand-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.el-subcard-meta svg { width: 12px; height: 12px; }
+
+.el-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 1.5rem 0 0.75rem;
+}
+.el-group-heading:first-child { margin-top: 0; }
+.el-group-heading h3 {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--brand-muted);
+  margin: 0;
+  white-space: nowrap;
+}
+.el-group-heading .el-rule { flex: 1 1 auto; height: 1px; background: var(--brand-border); }
+
+/* ---- Toolbar: count + sort ---- */
+
+.el-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--brand-border);
+  border-bottom: 1px solid var(--brand-border);
+  margin-bottom: 1.25rem;
+}
+
+.el-count-label { font-size: 0.8125rem; color: var(--brand-muted); }
+.el-count-label strong { color: var(--brand-text); font-weight: 700; }
+
+.el-toolbar-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+
+.el-select {
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 7px;
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+}
+.el-select:focus-visible { outline: 2px solid var(--brand-dark); outline-offset: 1px; }
+
+.el-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78125rem;
+  font-weight: 700;
+  color: var(--brand-text);
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 7px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+.el-filter-btn svg { width: 15px; height: 15px; }
+/* On desktop the brand list is always open, so the toggle button would do nothing. */
+@media (min-width: 1024px) { .el-filter-btn { display: none; } }
+
+/* ---- Product filters panel ---- */
+
+.el-filters {
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 1023px) {
+  .el-filters { display: none; }
+  .el-filters.is-open { display: block; }
+}
+
+.el-filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px) { .el-filters-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.el-filter-title {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--brand-muted);
+  margin-bottom: 0.5rem;
+}
+
+.el-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78125rem;
+  color: var(--brand-text);
+  padding: 0.2rem 0;
+  cursor: pointer;
+}
+.el-check input { accent-color: var(--brand-dark); width: 14px; height: 14px; cursor: pointer; }
+
+.el-filter-clear {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--brand-border);
+  display: flex;
+  justify-content: flex-end;
+}
+.el-link-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+.el-link-btn:hover { color: var(--brand-text); }
+
+/* ---- Product grid ---- */
+
+.el-products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 900px) { .el-products { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.el-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--brand-text);
+  transition: box-shadow 0.25s var(--nav-ease), transform 0.25s var(--nav-ease);
+}
+.el-card:hover { box-shadow: var(--nav-shadow); transform: translateY(-3px); }
+
+.el-card-img { position: relative; aspect-ratio: 1 / 1; background: var(--brand-bg); overflow: hidden; }
+.el-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--nav-ease); }
+.el-card:hover .el-card-img img { transform: scale(1.05); }
+
+.el-card-badge {
+  position: absolute;
+  top: 0.6rem; left: 0.6rem;
+  background: var(--brand-dark);
+  color: var(--brand-white);
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+}
+
+.el-card-body { padding: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1 1 auto; }
+
+.el-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.625rem;
+  color: var(--brand-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.el-card-meta .el-rating { color: var(--brand-text); }
+
+.el-card-name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.el-card-foot {
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--brand-border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.el-card-price { font-size: 0.9375rem; font-weight: 800; color: var(--brand-text); }
+.el-card-old { font-size: 0.6875rem; color: #9CA3AF; text-decoration: line-through; }
+
+.el-card-add {
+  flex: 0 0 auto;
+  background: var(--brand-dark);
+  color: var(--brand-white);
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+.el-card-add:hover { background: #000; }
+.el-card-add svg { width: 15px; height: 15px; }
+
+/* ---- Empty state ---- */
+
+.el-empty {
+  background: var(--brand-white);
+  border: 1px dashed var(--brand-border);
+  border-radius: var(--nav-radius);
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+}
+.el-empty svg { width: 34px; height: 34px; color: var(--brand-muted); margin: 0 auto 0.75rem; }
+.el-empty h3 { font-size: 1rem; font-weight: 800; color: var(--brand-text); margin: 0 0 0.4rem; }
+.el-empty p { font-size: 0.8125rem; color: var(--brand-muted); max-width: 46ch; margin: 0 auto 1.1rem; line-height: 1.6; }
+
+.el-chiprow { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; }
+
+.el-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-bg);
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  text-decoration: none;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+.el-chip:hover { background: var(--brand-dark); color: var(--brand-white); border-color: var(--brand-dark); }
+.el-chip .el-count { font-size: 0.6875rem; opacity: 0.7; }
+
+/* ---- Sibling category strip (never feel trapped) ---- */
+
+.el-siblings {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--brand-border);
+}
+.el-siblings h3 {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--brand-muted);
+  margin: 0 0 0.75rem;
+}
+
+/* ==================================================================
+   8. HOMEPAGE CATEGORY CARDS
+   ================================================================== */
+
+.el-cat-cards {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 640px) { .el-cat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .el-cat-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.el-catcard {
+  display: flex;
+  flex-direction: column;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.28s var(--nav-ease), transform 0.28s var(--nav-ease);
+}
+.el-catcard:hover { box-shadow: var(--nav-shadow); transform: translateY(-3px); }
+
+.el-catcard-img { position: relative; aspect-ratio: 16 / 10; background: var(--brand-surface); overflow: hidden; }
+.el-catcard-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--nav-ease); }
+.el-catcard:hover .el-catcard-img img { transform: scale(1.06); }
+.el-catcard-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0) 100%);
+}
+.el-catcard-titlewrap { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.85rem 1rem; color: #fff; }
+.el-catcard-title { display: block; font-size: 1rem; font-weight: 800; line-height: 1.2; }
+.el-catcard-tag { display: block; font-size: 0.6875rem; color: rgba(255,255,255,0.82); margin-top: 2px; }
+
+.el-catcard-body { padding: 0.85rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.65rem; flex: 1 1 auto; }
+.el-catcard-subs { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+.el-catcard-sub {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-bg);
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.el-catcard-sub:hover { background: var(--brand-dark); color: #fff; border-color: var(--brand-dark); }
+
+.el-catcard-all {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--brand-text);
+  text-decoration: none;
+}
+.el-catcard-all svg { width: 14px; height: 14px; transition: transform 0.2s ease; }
+.el-catcard-all:hover svg { transform: translateX(3px); }
+
+/* ==================================================================
+   9. PAGINATION
+   ================================================================== */
+
+.el-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--brand-border);
+}
+
+.el-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.el-page-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.el-page-btn:hover:not(:disabled):not(.el-page-active) {
+  background: var(--brand-surface);
+  border-color: var(--brand-dark);
+}
+
+.el-page-btn.el-page-active {
+  background: var(--brand-dark);
+  color: var(--brand-white);
+  border-color: var(--brand-dark);
+  cursor: default;
+}
+
+.el-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.el-page-dots {
+  padding: 0 0.5rem;
+  color: var(--brand-muted);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .el-pagination {
+    gap: 0.35rem;
+  }
+
+  .el-page-btn {
+    min-width: 36px;
+    height: 36px;
+    font-size: 0.8125rem;
+    padding: 0 0.6rem;
+  }
+}
+
+/* ==================================================================
+   10. MOTION PREFERENCES
+   ================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  .el-card:hover, .el-catcard:hover, .el-subcard:hover { transform: none; }
+}
+
+/* ==================================================================
+   10. HEADER SHELL (top row: logo, search, cart) + MOBILE DRAWER
+   ================================================================== */
+
+.el-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--brand-bg);
+  transition: box-shadow 0.3s ease;
+}
+.el-header.is-stuck { box-shadow: 0 2px 10px rgba(58, 58, 58, 0.07); }
+
+.el-header-top { padding: 0.85rem 0; }
+.el-header.is-stuck .el-header-top { padding: 0.55rem 0; }
+
+.el-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ==================================================================
+   SIMPLE PRIMARY NAV — Home / Shop by Categories / Brands / Customer Care
+   Replaces the old always-visible category bar row entirely. Hidden
+   below 1024px since the hamburger drawer is the real navigation
+   there (same breakpoint the old bar used for its own mega-menus).
+   ================================================================== */
+.el-nav {
+  display: none;
+  align-items: stretch;
+  gap: 0.15rem;
+  flex: 0 0 auto;
+}
+@media (min-width: 1024px) {
+  .el-nav { display: flex; }
+}
+
+.el-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.7rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  white-space: nowrap;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 6px;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+.el-nav-link:hover { background: var(--brand-surface); }
+.el-nav-link.is-active {
+  color: var(--brand-dark);
+  font-weight: 800;
+  border-bottom-color: var(--brand-dark);
+}
+
+/* "Shop by Categories" reuses .el-catbar-item / .el-catbar-link so the
+   existing hover-open / click-caret / escape-to-close JS keeps working
+   untouched — these rules just make it sit inline and look like a plain
+   nav link instead of a full-width tab-bar item. */
+.el-navlink-item > .el-catbar-link {
+  padding: 0.6rem 0.7rem;
+  border-radius: 6px;
+}
+.el-navlink-item.is-open > .el-catbar-link,
+.el-navlink-item > .el-catbar-link:hover {
+  background: var(--brand-surface);
+}
+
+.el-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--brand-text);
+  padding: 0.4rem;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.el-menu-btn:hover { background: var(--brand-surface); }
+.el-menu-btn svg { width: 23px; height: 23px; }
+@media (min-width: 1024px) { .el-menu-btn { display: none; } }
+
+.el-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: var(--brand-text);
+  text-decoration: none;
+  flex: 0 0 auto;
+  margin-right: 1.25rem;
+}
+@media (min-width: 1024px) { .el-logo { font-size: 1.6rem; margin-right: 2rem; } }
+
+/* Inline search — always visible on desktop, panel-based on mobile. */
+.el-searchbox {
+  flex: 1 1 auto;
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+  display: none;
+}
+@media (min-width: 768px) { .el-searchbox { display: block; } }
+
+.el-searchbox-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.el-searchbox-inner:focus-within {
+  border-color: var(--brand-dark);
+  box-shadow: 0 0 0 3px rgba(45, 45, 45, 0.06);
+}
+.el-searchbox-inner svg { width: 16px; height: 16px; color: var(--brand-muted); flex: 0 0 auto; }
+.el-searchbox input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  color: var(--brand-text);
+}
+.el-searchbox input::placeholder { color: #A3A3A3; }
+
+/* Dropdown of results under the search box. */
+.el-search-drop {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0; right: 0;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--nav-radius);
+  box-shadow: var(--nav-shadow);
+  padding: 0.6rem 0.75rem 0.85rem;
+  z-index: 70;
+}
+.el-search-drop.hidden { display: none; }
+.el-search-drop .el-search-results { border-top: none; margin-top: 0; padding-top: 0; }
+
+.el-header-actions { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+
+/* Utility link (Customer Care) — deliberately kept out of the category
+   bar so that bar holds product categories only. */
+.el-util-link {
+  display: none;
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.el-util-link:hover { background: var(--brand-surface); }
+@media (min-width: 1024px) { .el-util-link { display: inline-block; } }
+
+.el-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--brand-text);
+  padding: 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.el-icon-btn:hover { background: var(--brand-surface); }
+.el-icon-btn svg { width: 20px; height: 20px; }
+@media (min-width: 768px) { .el-icon-btn.is-mobile-only { display: none; } }
+
+.el-cart-badge {
+  position: absolute;
+  top: 2px; right: 2px;
+  min-width: 17px; height: 17px;
+  padding: 0 4px;
+  background: var(--brand-dark);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.el-cart-badge.hidden { display: none; }
+
+/* Mobile search panel (revealed by the search icon under 768px). */
+.el-msearch {
+  border-top: 1px solid var(--brand-border);
+  background: var(--brand-white);
+  padding: 0.75rem 0 1rem;
+}
+.el-msearch.hidden { display: none; }
+.el-msearch .el-searchbox { display: block; max-width: none; margin: 0; }
+.el-msearch .el-search-drop {
+  position: static;
+  box-shadow: none;
+  border: none;
+  padding: 0.5rem 0 0;
+}
+
+/* ---- Mobile drawer ---- */
+
+.el-drawer { position: fixed; inset: 0; z-index: 80; }
+.el-drawer.hidden { display: none; }
+
+.el-drawer-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  animation: el-fade 0.2s ease;
+}
+
+.el-drawer-panel {
+  position: relative;
+  z-index: 1;
+  width: 86%;
+  max-width: 340px;
+  height: 100%;
+  background: var(--brand-bg);
+  box-shadow: 6px 0 28px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  animation: el-slide-in 0.26s var(--nav-ease);
+}
+
+@keyframes el-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes el-slide-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+.el-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--brand-border);
+  flex: 0 0 auto;
+}
+.el-drawer-head span { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; letter-spacing: -0.04em; }
+
+.el-drawer-body { flex: 1 1 auto; overflow-y: auto; padding: 0 1.5rem 1.5rem; }
+
+.el-drawer-section-title {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--brand-muted);
+  padding: 1.1rem 0 0.5rem;
+}
+
+.el-drawer-link {
+  display: block;
+  padding: 0.7rem 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--brand-border);
+}
+.el-drawer-link.is-active { font-weight: 800; }
+
+.el-drawer-foot {
+  flex: 0 0 auto;
+  padding: 1rem 1.5rem 1.4rem;
+  border-top: 1px solid var(--brand-border);
+  font-size: 0.6875rem;
+  color: var(--brand-muted);
+  line-height: 1.9;
+}
+
+/* Utility used by injected markup (kept local so it never depends
+   on Tailwind being loaded). */
+.el-hidden { display: none !important; }
+.el-sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* ==================================================================
+   11. SHARED FOOTER
+   ================================================================== */
+
+.el-footer {
+  display: block;
+  background: var(--brand-surface);
+  border-top: 1px solid var(--brand-border);
+  color: var(--brand-text);
+  padding: 3.5rem 0 2rem;
+  margin-top: 3rem;
+}
+
+.el-foot-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.25rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--brand-border);
+}
+@media (min-width: 640px) { .el-foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .el-foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2.5rem; } }
+
+.el-foot-logo {
+  display: inline-block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  color: var(--brand-text);
+  text-decoration: none;
+  margin-bottom: 0.9rem;
+}
+
+.el-foot-brand p {
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+  max-width: 42ch;
+  margin: 0 0 1rem;
+}
+
+.el-foot-contact p { font-size: 0.75rem; margin: 0 0 0.3rem; }
+
+.el-foot-grid h4 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin: 0 0 1rem;
+}
+
+.el-foot-grid ul { list-style: none; margin: 0; padding: 0; }
+.el-foot-grid li { margin-bottom: 0.6rem; }
+.el-foot-grid li a {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--brand-muted);
+  text-decoration: none;
+}
+.el-foot-grid li a:hover { color: var(--brand-text); }
+
+.el-foot-bottom {
+  padding-top: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  font-size: 0.75rem;
+  color: var(--brand-muted);
+}
+.el-foot-bottom p { margin: 0; }
+.el-foot-pay { display: flex; gap: 0.5rem; }
+.el-foot-pay span {
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: var(--brand-white);
+  border: 1px solid var(--brand-border);
+  border-radius: 5px;
+  padding: 0.25rem 0.5rem;
+}
+
+/* ==================================================================
+   12. BASE — only applies to the catalog pages built on site.css.
+   Existing Tailwind pages override these via their own classes.
+   ================================================================== */
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: var(--brand-bg);
+  color: var(--brand-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.el-main { padding: 1.5rem 0 1rem; }
+.el-crumb-row { margin-bottom: 1.25rem; }
+
+img { max-width: 100%; }
+
+/* Custom scrollbar, matching the existing pages. */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--brand-bg); }
+::-webkit-scrollbar-thumb { background: #D4D0C7; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand-text); }
+
+/* ==================================================================
+   BRAND FILTER — Left sidebar vertical list (Hadi Electronics style)
+   A clean vertical list of clickable brand checkboxes with product counts.
+   Brands with no products are shown dimmed.
+   ================================================================== */
+
+/* Desktop: Vertical list in sidebar */
+@media (min-width: 1024px) {
+  .el-brandlist {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+/* Mobile/Tablet: Horizontal grid when filter panel opens */
+@media (max-width: 1023px) {
+  .el-brandlist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.15rem 1rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .el-brandlist {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Brand checkbox item - looks like a clean list item */
+.el-check.el-brand {
+  padding: 0.65rem 0;
+  min-width: 0;
+  border-bottom: 1px solid #F0EDE7;
+  margin: 0;
+  transition: background-color 0.2s ease;
+}
+
+.el-check.el-brand:last-child {
+  border-bottom: none;
+}
+
+.el-check.el-brand:hover {
+  background-color: var(--brand-bg);
+}
+
+.el-check.el-brand > span:first-of-type {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--brand-text);
+}
+
+/* Product count badge */
+.el-brand-count {
+  font-size: 0.75rem;
+  color: var(--brand-muted);
+  flex: 0 0 auto;
+  background: var(--brand-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* Dimmed when zero products */
+.el-check.el-brand.is-zero {
+  opacity: 0.4;
+}
+
+/* Bold when checked */
+.el-check.el-brand input:checked + span {
+  font-weight: 700;
+  color: var(--brand-dark);
+}
+
+/* Hide checkbox, make entire row clickable */
+.el-check.el-brand input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.65rem;
+  cursor: pointer;
+  accent-color: var(--brand-dark);
+}
+
+/* Brand name above the product title on cards */
+.el-card-brand {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ===================================================================
+   SIDEBAR BRAND FILTER STYLING (Hadi Electronics style)
+   =================================================================== */
+.el-sidebar-brands {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--brand-border);
+}
+
+.el-sidebar-brands .el-sidebar-head {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--brand-text);
+  margin-bottom: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.el-side-brandlist .el-brandlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.el-sidebar-brands .el-check.el-brand {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #F0EDE7;
+  margin: 0;
+  transition: background-color 0.15s ease;
+}
+
+.el-sidebar-brands .el-check.el-brand:last-child {
+  border-bottom: none;
+}
+
+.el-sidebar-brands .el-check.el-brand:hover {
+  background-color: var(--brand-bg);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+.el-sidebar-brands .el-check.el-brand > span:first-of-type {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--brand-text);
+}
+
+.el-sidebar-brands .el-brand-count {
+  font-size: 0.75rem;
+  color: var(--brand-muted);
+  background: var(--brand-bg);
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+  min-width: 24px;
+}
+
+.el-sidebar-brands .el-check.el-brand input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.65rem;
+  cursor: pointer;
+  accent-color: var(--brand-dark);
+}
+
+.el-sidebar-brands .el-check.el-brand input:checked + span {
+  font-weight: 700;
+  color: var(--brand-dark);
+}
+
+.el-sidebar-brands .el-filter-clear {
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--brand-border);
+}
+
+.el-sidebar-brands .el-link-btn {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-dark);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.el-sidebar-brands .el-link-btn:hover {
+  opacity: 0.7;
+}
+
+/* Category card with no photo yet: neutral tile with an icon */
+.el-catcard-ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--brand-surface), #e4e2dc);
+  color: #b9b5aa;
+}
+.el-catcard-ph svg { width: 44px; height: 44px; }
+
+/* Empty category inside the mega-menu */
+.el-mega-empty { font-size: 0.8125rem; color: var(--brand-muted); padding: 0.5rem 0; }
+.el-mega-empty a { color: var(--brand-text); font-weight: 700; }
+
+.el-catcard-soon { font-size: 0.75rem; color: var(--brand-muted); }
+
+
+/* ================================================================== */
+/* SIDEBAR BRAND FILTER LAYOUT - Similar to Hadi Electronics         */
+/* ================================================================== */
+
+@media (min-width: 1024px) {
+  /* Two-column layout: sidebar + main content */
+  .el-category-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* Brand filters in left sidebar */
+  .el-filters-sidebar {
+    position: sticky;
+    top: 100px;
+    background: var(--brand-white);
+    border: 1px solid var(--brand-border);
+    border-radius: var(--nav-radius);
+    padding: 1.25rem;
+  }
+
+  .el-filters-sidebar .el-filter-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--brand-text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--brand-border);
+  }
+
+  /* Main content area */
+  .el-category-main-content {
+    min-width: 0; /* Prevents grid blowout */
+  }
+
+  /* Move filters from horizontal to sidebar */
+  .el-toolbar + .el-filters {
+    display: none; /* Hide the old horizontal filter */
+  }
+}
+
+/* Mobile: Keep filters collapsible */
+@media (max-width: 1023px) {
+  .el-filters-sidebar {
+    display: none;
+  }
+}

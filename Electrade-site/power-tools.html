@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power Tools | Electrade Pakistan</title>
+  <meta name="description" content="Power when you need it ??? inverter UPS systems, batteries, generators and portable generators.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Shared navigation styles (header, mega-menu, sidebar, grid) -->
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body>
+
+  <!-- Header, category bar, mega-menu and mobile drawer are all
+       rendered by site-nav.js from the data in categories.js. -->
+  <header id="site-header"></header>
+
+  <main class="el-main">
+    <div class="el-container">
+      <nav id="breadcrumb" class="el-crumb el-crumb-row" aria-label="Breadcrumb"></nav>
+
+      <div class="el-layout">
+        <!-- LEFT: category sidebar (auto-expands the category you're in) -->
+        <aside id="category-sidebar"></aside>
+
+        <!-- RIGHT: title, subcategories / product listing, filters, sorting -->
+        <div id="category-main"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="categories.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="products-loader-final.js"></script>
+  <script src="cart.js"></script>
+  <script src="site-nav.js"></script>
+  <script>
+    /* This page always shows one category. category-page.js reads it
+       and renders the landing page; subcategories are served by
+       category.html?cat=power-tools&sub=... */
+    window.PAGE_CAT = "power-tools";
+  </script>
+
+  <script src="category-page.js"></script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>

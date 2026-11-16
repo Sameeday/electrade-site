@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | Electrade</title>
+  <meta name="description" content="Review the items in your Electrade shopping cart.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBg: '#F7F6F3',
+            brandSurface: '#EFECE6',
+            brandText: '#3A3A3A',
+            brandMuted: '#6B6B6B',
+            brandDarkBtn: '#2D2D2D',
+            brandBorder: '#E4E2DC',
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #F7F6F3;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #D4D0C7;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3A3A3A;
+    }
+
+    header.shrunk {
+      padding-top: 0.65rem;
+      padding-bottom: 0.65rem;
+      background-color: rgba(247, 246, 243, 0.95);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(58, 58, 58, 0.04);
+      border-bottom: 1px solid #E4E2DC;
+    }
+
+    .nav-dropdown {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .group:hover .nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+  <!-- Shared navigation styles (header, mega-menu, sidebar, breadcrumbs) -->
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body class="bg-brandBg text-brandText font-sans selection:bg-brandDarkBtn selection:text-white overflow-x-hidden">
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="bg-brandDarkBtn text-[#F7F6F3] text-xs py-2 px-4 text-center font-medium tracking-wide">
+    Shipping All Across Pakistan | Cash On Delivery Available
+  </div>
+
+  <!-- STICKY HEADER -->
+  <!-- Header, category bar, mega-menu and mobile drawer are rendered by
+       site-nav.js from the hierarchy in categories.js. -->
+  <header id="site-header"></header>
+
+  <!-- The mobile drawer is created by site-nav.js -->
+
+  <!-- PAGE INTRO -->
+  <section class="py-14 border-b border-brandBorder bg-brandSurface/40">
+    <div class="container mx-auto px-4 text-center max-w-2xl">
+      <span class="text-xs font-bold text-brandMuted uppercase tracking-widest block mb-2">Step 1 of 2</span>
+      <h1 class="text-3xl lg:text-4xl font-extrabold text-brandText mb-3">Your Cart</h1>
+      <p class="text-brandMuted text-sm sm:text-base">Review your items before proceeding to checkout.</p>
+    </div>
+  </section>
+
+  <!-- EMPTY CART STATE -->
+  <section id="empty-cart" class="hidden py-24">
+    <div class="container mx-auto px-4 text-center max-w-md">
+      <i data-lucide="shopping-bag" class="w-14 h-14 mx-auto text-brandMuted mb-4"></i>
+      <h2 class="text-xl font-extrabold text-brandText mb-2">Your cart is empty</h2>
+      <p class="text-brandMuted text-sm mb-6">Looks like you haven't added anything yet. Let's fix that.</p>
+      <a href="index.html"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-brandDarkBtn text-white font-semibold text-sm rounded hover:bg-black transition-all">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Continue Shopping</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CART CONTENTS -->
+  <section id="cart-contents" class="hidden py-14">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <!-- Line items -->
+        <div class="lg:col-span-2 space-y-4" id="cart-items"></div>
+
+        <!-- Order summary -->
+        <div class="lg:col-span-1">
+          <div class="bg-white border border-brandBorder rounded-xl p-6 sticky top-28">
+            <h2 class="font-extrabold text-lg text-brandText mb-5">Order Summary</h2>
+            <div class="flex items-center justify-between text-sm text-brandMuted mb-2">
+              <span>Subtotal</span>
+              <span id="summary-subtotal" class="font-semibold text-brandText"></span>
+            </div>
+            <div class="flex items-center justify-between text-sm text-brandMuted mb-4 pb-4 border-b border-brandBorder">
+              <span>Shipping</span>
+              <span class="font-semibold text-brandText">Calculated at checkout</span>
+            </div>
+            <div class="flex items-center justify-between mb-6">
+              <span class="font-extrabold text-brandText">Total</span>
+              <span id="summary-total" class="font-extrabold text-xl text-brandText"></span>
+            </div>
+            <a href="checkout.html"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-brandDarkBtn text-white font-semibold text-sm rounded hover:bg-black transition-all">
+              <span>Proceed to Checkout</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="index.html"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 mt-3 border border-brandBorder text-brandText font-semibold text-sm rounded hover:bg-brandSurface transition-all">
+              Continue Shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shared footer, rendered by site-nav.js -->
+  <footer id="site-footer"></footer>
+
+  <!-- FLOATING WHATSAPP BUTTON -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <a href="https://wa.me/923239883836?text=Hello%20Electrade!" target="_blank" rel="noreferrer"
+      class="group relative bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center"
+      aria-label="Chat on WhatsApp">
+      <i data-lucide="message-circle" class="w-7 h-7 fill-white text-[#25D366]"></i>
+      <span class="absolute -top-1 -right-1 flex h-4 w-4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-4 w-4 bg-[#25D366] border-2 border-white"></span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Shared product data + cart logic (localStorage-based, no backend) -->
+  <script src="categories.js"></script>
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <script src="site-nav.js"></script>
+
+  <script>
+    // Builds the header, category bar, mega-menu, mobile drawer
+    // and footer from categories.js.
+    ElectradeNav.init({});
+  </script>
+
+  <script>
+    lucide.createIcons();
+
+    // Header, mega-menu, mobile drawer and search are handled by
+    // site-nav.js (see ElectradeNav.init below).
+
+    // ---- RENDER CART ----
+    function renderCart() {
+      const items = getCartDetailed();
+      const emptyState = document.getElementById('empty-cart');
+      const contentsState = document.getElementById('cart-contents');
+      const itemsContainer = document.getElementById('cart-items');
+
+      if (items.length === 0) {
+        emptyState.classList.remove('hidden');
+        contentsState.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      contentsState.classList.remove('hidden');
+
+      itemsContainer.innerHTML = '';
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex gap-4 bg-white border border-brandBorder rounded-xl p-4';
+        row.innerHTML = `
+          <a href="product.html?id=${item.id}" class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-brandBg">
+            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+          </a>
+          <div class="flex-1 flex flex-col">
+            <div class="flex items-start justify-between gap-3">
+              <a href="product.html?id=${item.id}" class="font-bold text-sm text-brandText hover:opacity-75 leading-snug">${item.name}</a>
+              <button class="remove-btn text-brandMuted hover:text-red-500 transition-colors flex-shrink-0" data-id="${item.id}" aria-label="Remove item">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="text-xs text-brandMuted mt-1">Rs. ${item.price.toLocaleString()} each</div>
+            <div class="flex items-center justify-between mt-auto pt-3">
+              <div class="flex items-center border border-brandBorder rounded-lg overflow-hidden">
+                <button class="qty-minus-btn px-3 py-1.5 hover:bg-brandSurface transition-colors" data-id="${item.id}" aria-label="Decrease quantity">
+                  <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                </button>
+                <span class="px-4 py-1.5 text-xs font-bold text-brandText min-w-[2rem] text-center">${item.qty}</span>
+                <button class="qty-plus-btn px-3 py-1.5 hover:bg-brandSurface transition-colors" data-id="${item.id}" aria-label="Increase quantity">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <span class="font-extrabold text-sm text-brandText">Rs. ${item.lineTotal.toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+        itemsContainer.appendChild(row);
+      });
+
+      const subtotal = cartSubtotal();
+      document.getElementById('summary-subtotal').textContent = 'Rs. ' + subtotal.toLocaleString();
+      document.getElementById('summary-total').textContent = 'Rs. ' + subtotal.toLocaleString();
+
+      lucide.createIcons();
+
+      // Wire up per-row controls
+      itemsContainer.querySelectorAll('.qty-plus-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const current = getCartDetailed().find(i => i.id === id);
+          if (current) setCartQty(id, current.qty + 1);
+          renderCart();
+        });
+      });
+      itemsContainer.querySelectorAll('.qty-minus-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const current = getCartDetailed().find(i => i.id === id);
+          if (current) setCartQty(id, current.qty - 1);
+          renderCart();
+        });
+      });
+      itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          removeFromCart(btn.dataset.id);
+          renderCart();
+        });
+      });
+    }
+
+    renderCart();
+  </script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>

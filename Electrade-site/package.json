@@ -1,0 +1,15 @@
+{
+  "name": "electrade-specs-scraper",
+  "version": "1.0.0",
+  "description": "Node.js scraper for extracting product specifications from hadielectronics.com.pk",
+  "main": "specs-scraper.js",
+  "scripts": {
+    "scrape": "node specs-scraper.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "node-fetch": "^2.7.0"
+  },
+  "author": "",
+  "license": "MIT"
+}

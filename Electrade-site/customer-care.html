@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Care | Electrade</title>
+  <meta name="description" content="Shipping, returns, payment security, warranty, and FAQ information for Electrade customers.">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBg: '#F7F6F3',
+            brandSurface: '#EFECE6',
+            brandText: '#3A3A3A',
+            brandMuted: '#6B6B6B',
+            brandDarkBtn: '#2D2D2D',
+            brandBorder: '#E4E2DC',
+          },
+          fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 7px; }
+    ::-webkit-scrollbar-track { background: #F7F6F3; }
+    ::-webkit-scrollbar-thumb { background: #D4D0C7; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3A3A3A; }
+
+    /* Accordion behavior */
+    .care-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+    }
+    .care-item.open .care-panel {
+      max-height: 3000px;
+      padding-top: 1rem;
+      padding-bottom: 1.5rem;
+    }
+    .care-item.open .care-chevron { transform: rotate(180deg); }
+    .care-chevron { transition: transform 0.3s ease; }
+
+    /* Header shrink on scroll */
+    header.shrunk {
+      padding-top: 0.65rem;
+      padding-bottom: 0.65rem;
+      background-color: rgba(247, 246, 243, 0.95);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(58, 58, 58, 0.04);
+      border-bottom: 1px solid #E4E2DC;
+    }
+
+    /* Hover dropdown menus */
+    .nav-dropdown {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    }
+
+    .group:hover .nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+  <!-- Shared navigation styles (header, mega-menu, sidebar, breadcrumbs) -->
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body class="bg-brandBg text-brandText font-sans selection:bg-brandDarkBtn selection:text-white overflow-x-hidden">
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="bg-brandDarkBtn text-[#F7F6F3] text-xs py-2 px-4 text-center font-medium tracking-wide">
+    Shipping All Across Pakistan | Cash On Delivery Available |
+    <a href="https://wa.me/923239883836" target="_blank" class="inline-flex items-center gap-1 hover:text-white transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+      </svg>
+      03239883836
+    </a>
+  </div>
+
+  <!-- STICKY HEADER -->
+  <!-- Header, category bar, mega-menu and mobile drawer are rendered by
+       site-nav.js from the hierarchy in categories.js. -->
+  <header id="site-header"></header>
+
+  <!-- The mobile drawer is created by site-nav.js -->
+
+  <!-- PAGE INTRO -->
+  <section class="py-14 border-b border-brandBorder bg-brandSurface/40">
+    <div class="container mx-auto px-4 text-center max-w-2xl">
+      <span class="text-xs font-bold text-brandMuted uppercase tracking-widest block mb-2">CUSTOMER CARE</span>
+      <h1 class="text-3xl lg:text-4xl font-extrabold text-brandText mb-3">We're Here to Help</h1>
+      <p class="text-brandMuted text-sm sm:text-base">Click a topic below to see the details. Content is placeholder for now ??? replace each panel's text with your real policy once it's ready.</p>
+    </div>
+  </section>
+
+  <!-- POLICY ACCORDION LIST
+       Each <div class="care-item"> below is one clickable row. Clicking the
+       button toggles the "open" class on its parent, which expands the
+       hidden "care-panel" beneath it (see the <style> block above for how
+       that animation works). Every panel currently has placeholder text
+       inside an HTML comment reminder ??? replace it with real content. -->
+  <section class="py-16">
+    <div class="container mx-auto px-4 max-w-3xl space-y-4">
+
+      <!-- SHIPPING & DELIVERY -->
+      <div id="shipping-policy" class="care-item bg-white border border-brandBorder rounded-xl overflow-hidden scroll-mt-24">
+        <button class="care-toggle w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-bold text-brandText">Shipping & Delivery Policy</span>
+          <i data-lucide="chevron-down" class="care-chevron w-5 h-5 text-brandMuted"></i>
+        </button>
+        <div class="care-panel px-6 text-sm text-brandMuted leading-relaxed">
+          <p class="mb-4">Electrade has a strong and clear shipping policy for all the orders which you place on our website. We offer acceptable shipping charges on all products all over Pakistan. You only need to pay the Product Price. We aim to provide you the secure and best online shopping experience, therefore, we have no hidden charges. We highlight on:</p>
+          <ul class="list-disc pl-5 space-y-2 mb-4">
+            <li>Delivering each order perfectly, in a good condition and on time as promised by our Customer Support Representatives.</li>
+            <li>Shipping each order to the exact destination address as specified at the time of order placement. In case if you wish to ship more than one product to different destinations, you need to place multiple orders.</li>
+            <li>Shipping each item of an order within 3-5 working days all across Pakistan.</li>
+            <li>The orders are delivered on all week days (i.e. from Saturday to Thursday) except public holidays. To let your purchased product(s) delivered in the perfect condition and on time.</li>
+          </ul>
+          <p>For further details and queries, you can contact us at <a href="mailto:sameedabbas777@gmail.com" class="text-brandText font-semibold hover:underline">sameedabbas777@gmail.com</a>.</p>
+        </div>
+      </div>
+
+      <!-- RETURNS & EXCHANGE -->
+      <div id="returns-policy" class="care-item bg-white border border-brandBorder rounded-xl overflow-hidden scroll-mt-24">
+        <button class="care-toggle w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-bold text-brandText">Returns & Exchange Policy</span>
+          <i data-lucide="chevron-down" class="care-chevron w-5 h-5 text-brandMuted"></i>
+        </button>
+        <div class="care-panel px-6 text-sm text-brandMuted leading-relaxed">
+          <h3 class="font-bold text-brandText mb-2">Returns Policy</h3>
+          <p class="mb-3">Electrade believes in 100% return and refund of the products. There are certain conditions that must be fulfilled while making a product return:</p>
+          <ul class="list-disc pl-5 space-y-2 mb-4">
+            <li>The product must be unwashed, unused and in its perfect condition.</li>
+            <li>The purchased product should include its original tags, accessories, user manual, warranty card and freebies.</li>
+            <li>The delivered product should be returned in its undamaged and original packaging box.</li>
+            <li>If we find that the returned product is not in a satisfactory condition, we reserve the right to send it back to you.</li>
+          </ul>
+          <p class="mb-4">This complete process can only be done within 3 working days after the delivery made in case of late Electrade has the right to reject the refund & return or exchange case if it is not eligible at any criteria.</p>
+
+          <p class="font-semibold text-brandText mb-2">Reasons of Return</p>
+          <ul class="list-disc pl-5 space-y-2 mb-6">
+            <li>The purchased product is slightly damaged, broken or malfunctioning.</li>
+            <li>Incorrect or incomplete product has been delivered.</li>
+            <li>The purchased product needs to be exchanged with another brand.</li>
+          </ul>
+
+          <h3 class="font-bold text-brandText mb-2">Refund Policy</h3>
+          <p class="mb-2">Electrade holds certain rules for a refund which are as follows:</p>
+          <ul class="list-disc pl-5 space-y-2 mb-4">
+            <li>Up till 10 days, the refunded amount will be given back as per the purchased price.</li>
+            <li>After 10 days, the refund amount will be conditional to the market forces i.e.</li>
+            <li>If the market price decreases, the refunded amount will also decrease.</li>
+            <li>If the market price increases, the repaid amount will remain the same (i.e., at the time of purchase).</li>
+          </ul>
+          <p>Whatever product(s) you buy from Electrade can be exchanged within 3 days, subject to its condition, attached documents, receipt and original packaging.</p>
+        </div>
+      </div>
+
+      <!-- PAYMENT & COD SECURITY -->
+      <div id="payment-security" class="care-item bg-white border border-brandBorder rounded-xl overflow-hidden scroll-mt-24">
+        <button class="care-toggle w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-bold text-brandText">Payment & COD Security</span>
+          <i data-lucide="chevron-down" class="care-chevron w-5 h-5 text-brandMuted"></i>
+        </button>
+        <div class="care-panel px-6 text-sm text-brandMuted leading-relaxed">
+          <p class="mb-4">Electrade accepts payment via debit/credit card, JazzCash, EasyPaisa, and Cash on Delivery (COD), giving you the flexibility to choose whichever method suits you best.</p>
+          <ul class="list-disc pl-5 space-y-2 mb-4">
+            <li>Card payments are processed through a secure, encrypted (SSL) channel ??? your card details are never stored on our servers.</li>
+            <li>JazzCash and EasyPaisa payments are handled directly through their own secure payment gateways.</li>
+            <li>For Cash on Delivery orders, our rider will confirm your order details before handing it over, and payment is collected only once the product is delivered to you.</li>
+            <li>All orders are verified by our Customer Support team before dispatch to help prevent fraudulent or fake orders.</li>
+          </ul>
+          <p>If you notice any suspicious activity on your order or have questions about a payment, please reach out to us immediately at <a href="mailto:sameedabbas777@gmail.com" class="text-brandText font-semibold hover:underline">sameedabbas777@gmail.com</a>.</p>
+        </div>
+      </div>
+
+      <!-- WARRANTY -->
+      <div id="warranty-info" class="care-item bg-white border border-brandBorder rounded-xl overflow-hidden scroll-mt-24">
+        <button class="care-toggle w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-bold text-brandText">Official Warranty Info</span>
+          <i data-lucide="chevron-down" class="care-chevron w-5 h-5 text-brandMuted"></i>
+        </button>
+        <div class="care-panel px-6 text-sm text-brandMuted leading-relaxed">
+          <p class="mb-4">All electronics sold on Electrade come with an official manufacturer warranty. Warranty duration varies by product category and brand ??? the exact period is listed on each product's page.</p>
+          <ul class="list-disc pl-5 space-y-2 mb-4">
+            <li>A valid warranty claim requires the original warranty card (where applicable) and proof of purchase, such as your order invoice.</li>
+            <li>Warranty covers manufacturing defects and malfunctions arising from normal use.</li>
+            <li>Warranty does not cover physical/accidental damage, water damage, unauthorized repair or tampering, or damage caused by improper use.</li>
+            <li>For products with brand-authorized service centers (e.g. major appliance and electronics brands), warranty claims may need to be processed directly through that brand's service network ??? we'll guide you to the right one.</li>
+            <li>To start a warranty claim, contact our Customer Support team with your order details and a description of the issue, and we'll advise you on the next steps.</li>
+          </ul>
+          <p>For any warranty-related query, reach out to us at <a href="mailto:sameedabbas777@gmail.com" class="text-brandText font-semibold hover:underline">sameedabbas777@gmail.com</a>.</p>
+        </div>
+      </div>
+
+      <!-- FAQS -->
+      <div id="faqs" class="care-item bg-white border border-brandBorder rounded-xl overflow-hidden scroll-mt-24">
+        <button class="care-toggle w-full flex items-center justify-between px-6 py-5 text-left">
+          <span class="font-bold text-brandText">FAQs & Support</span>
+          <i data-lucide="chevron-down" class="care-chevron w-5 h-5 text-brandMuted"></i>
+        </button>
+        <div class="care-panel px-6 text-sm text-brandMuted leading-relaxed">
+          <div class="space-y-4">
+            <div>
+              <p class="font-semibold text-brandText mb-1">How long does delivery take?</p>
+              <p>Orders are delivered within 3-5 working days across Pakistan, on all days from Saturday to Thursday (excluding public holidays).</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">What payment methods do you accept?</p>
+              <p>We accept debit/credit card, JazzCash, EasyPaisa, and Cash on Delivery (COD).</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">Is Cash on Delivery available everywhere in Pakistan?</p>
+              <p>Yes, COD is available nationwide, though a small COD handling charge applies in addition to standard shipping.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">Can I return or exchange a product?</p>
+              <p>Yes ??? products can be returned or exchanged within 3 working days of delivery, provided they're unused, undamaged, and in their original packaging with all accessories and tags. See our Returns & Exchange Policy above for full details.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">How do I track my order?</p>
+              <p>Once your order is dispatched, our Customer Support team will share your tracking details with you directly.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">Can I cancel my order after placing it?</p>
+              <p>Orders can be cancelled before they're dispatched ??? contact us as soon as possible if you need to cancel.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">Do your products come with a warranty?</p>
+              <p>Yes, all electronics come with an official manufacturer warranty ??? see our Official Warranty Info above for coverage details.</p>
+            </div>
+            <div>
+              <p class="font-semibold text-brandText mb-1">How can I contact customer support?</p>
+              <p>You can reach us anytime at <a href="mailto:sameedabbas777@gmail.com" class="text-brandText font-semibold hover:underline">sameedabbas777@gmail.com</a> or via the WhatsApp button on our website.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Shared footer, rendered by site-nav.js -->
+  <footer id="site-footer"></footer>
+
+  <!-- FLOATING WHATSAPP BUTTON ??? same as index.html -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <a href="https://wa.me/923239883836?text=Hello%20Electrade!" target="_blank" rel="noreferrer" class="group relative bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center" aria-label="Chat on WhatsApp">
+      <i data-lucide="message-circle" class="w-7 h-7 fill-white text-[#25D366]"></i>
+      <span class="absolute -top-1 -right-1 flex h-4 w-4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-4 w-4 bg-[#25D366] border-2 border-white"></span>
+      </span>
+    </a>
+  </div>
+
+  <!-- Shared product data + cart logic (localStorage-based, no backend) -->
+  <script src="categories.js"></script>
+  <script src="products.js"></script>
+  <script src="cart.js"></script>
+  <script src="site-nav.js"></script>
+
+  <script>
+    // Builds the header, category bar, mega-menu, mobile drawer and
+    // footer from the hierarchy in categories.js.
+    ElectradeNav.init({});
+  </script>
+
+  <script>
+    lucide.createIcons();
+
+    // Accordion toggle: clicking a policy's button flips its "open" class.
+    // If the page was loaded via a link with a #hash (e.g. someone clicked
+    // "Returns Policy" from the footer on the homepage), automatically open
+    // and scroll to that specific item.
+    document.querySelectorAll('.care-item').forEach(item => {
+      const toggle = item.querySelector('.care-toggle');
+      toggle.addEventListener('click', () => item.classList.toggle('open'));
+    });
+
+    if (window.location.hash) {
+      const target = document.querySelector(window.location.hash);
+      if (target && target.classList.contains('care-item')) {
+        target.classList.add('open');
+        setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      }
+    }
+
+    // Header, mega-menu, mobile drawer and search are handled by
+    // site-nav.js (see ElectradeNav.init below).
+  </script>
+
+  <!-- WhatsApp floating widget -->
+  <script src="whatsapp-widget.js"></script>
+</body>
+
+</html>
