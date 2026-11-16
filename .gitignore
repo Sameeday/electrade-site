@@ -12,7 +12,9 @@ catalog-pipeline/**/.env
 # FOLDERS TO EXCLUDE
 # ============================================
 # Catalog pipeline (contains secrets and scripts not needed for website)
-catalog-pipeline/
+catalog-pipeline/*
+# BUT allow the output folder (contains generated website with products)
+!catalog-pipeline/output/
 
 # Node modules (can be reinstalled)
 node_modules/
