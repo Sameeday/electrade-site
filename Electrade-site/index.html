@@ -317,6 +317,26 @@
     </div>
   </section>
 
+  <!-- FEATURED PRODUCTS SECTION -->
+  <section id="featured-products" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="scroll-reveal flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-brandBorder">
+        <div>
+          <span class="text-xs font-bold text-brandMuted uppercase tracking-widest block mb-1">FEATURED PRODUCTS</span>
+          <h2 class="text-2xl lg:text-3xl font-extrabold text-brandText">Best Selling Products</h2>
+        </div>
+      </div>
+
+      <!-- Featured products will be loaded here by website-loader.js -->
+      <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Loading spinner -->
+        <div class="col-span-full text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- BRANDS WE DEAL WITH ??? auto-sliding strip.
        The tiles are NOT typed here: ElectradeNav.renderBrandMarquee() (site-nav.js)
        builds them from the `brands` lists in categories.js, so every brand added

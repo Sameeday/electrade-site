@@ -261,9 +261,34 @@ async function searchProducts(query, callback, limit = 8) {
  */
 
 async function loadAllProducts() {
-  // Don't actually load all products - this is legacy
-  console.warn('⚠️ loadAllProducts() called - using lazy loading instead. Products are fetched on-demand.');
-  productsLoaded = true;
+  // Wait for products to be loaded if not already
+  if (productsLoaded && PRODUCTS.length > 0) {
+    console.log('✅ Products already loaded:', PRODUCTS.length);
+    return PRODUCTS;
+  }
+
+  // Wait for initialization to complete
+  console.log('⏳ Waiting for products initialization...');
+
+  // Wait for productsLoaded event if not ready yet
+  if (!productsLoaded || PRODUCTS.length === 0) {
+    await new Promise((resolve) => {
+      const checkInterval = setInterval(() => {
+        if (productsLoaded && PRODUCTS.length > 0) {
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        resolve();
+      }, 10000);
+    });
+  }
+
+  console.log('✅ Products ready:', PRODUCTS.length);
   return PRODUCTS;
 }
 
@@ -308,7 +333,75 @@ function getSaleProducts() {
   return PRODUCTS.filter(p => p.sale);
 }
 
-// Mark as loaded for compatibility
-productsLoaded = true;
+/**
+ * CRITICAL: Actually load ALL products from Supabase on page load
+ * This is needed for category pages to work!
+ */
+async function initializeProducts() {
+  try {
+    console.log('🔄 Loading all products from Supabase...');
 
-console.log('✅ Mobile-optimized lazy products loader initialized');
+    // Wait for Supabase to be ready
+    if (typeof waitForSupabase === 'function') {
+      await waitForSupabase();
+    }
+
+    // Fetch ALL products in batches (Supabase max is 1000 per request)
+    let allProducts = [];
+    let page = 0;
+    let batchSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      const start = page * batchSize;
+      const end = start + batchSize - 1;
+
+      console.log(`📦 Fetching products ${start} to ${end}...`);
+
+      const { data, error } = await sb
+        .from('products')
+        .select(CARD_FIELDS)
+        .order('created_at', { ascending: false })
+        .range(start, end);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        // Transform and add to our array
+        allProducts = allProducts.concat(data.map(p => transformProduct(p, false)));
+        console.log(`✅ Loaded batch: ${data.length} products (total: ${allProducts.length})`);
+
+        // If we got less than batchSize, we're done
+        if (data.length < batchSize) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      } else {
+        hasMore = false;
+      }
+    }
+
+    // Populate the global PRODUCTS array
+    PRODUCTS = allProducts;
+    productsLoaded = true;
+
+    console.log(`✅ Loaded ALL ${PRODUCTS.length} products from Supabase!`);
+
+    // Trigger event for other scripts waiting for products
+    document.dispatchEvent(new Event('productsLoaded'));
+
+  } catch (error) {
+    console.error('❌ Error loading products:', error);
+    productsLoaded = true; // Mark as loaded even on error so page doesn't hang
+  }
+}
+
+// Auto-initialize on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeProducts);
+} else {
+  initializeProducts();
+}
+
+console.log('✅ Products loader initialized - fetching from Supabase...');
